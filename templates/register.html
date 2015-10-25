@@ -1,0 +1,47 @@
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<form class="form-signup" action="{% url "register_user"%}" method="post">{% csrf_token %}
+    <h2>Create your account</h2>
+    <div class="fieldWrapper">
+        {{form.first_name.errors}}
+        <label>First name</label><br>
+        {{ form.first_name }}
+    </div>    
+    <br>
+    <div class="fieldWrapper">
+    	{{form.first_name.errors}}
+        <label>Last name</label><br>
+        {{ form.last_name }}
+    </div>    
+    <br>
+    <div class="fieldWrapper">    
+        {{ form.email.errors }}            
+        <label>E-mail</label><br>
+        {{ form.email }}
+    </div>    
+    <br>
+    <div class="fieldWrapper">
+        {{ form.username.errors }}           
+        <label>Username</label><br>
+        {{ form.username }}
+    </div>
+    <br>
+    <div class="fieldWrapper">    
+        {{ form.password1.errors }}                
+        <label>Password</label><br>                    
+        {{ form.password1 }}
+    </div>
+    <br>
+    <div class="fieldWrapper">
+        {{ form.password2.errors }}           
+        <label>Password again</label><br>
+        {{ form.password2 }}
+    </div>            
+    <br></br>
+    <input type="submit" name="submit" class="btn btn-primary" value="Create account">
+</form>
