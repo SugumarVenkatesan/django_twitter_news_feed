@@ -19,6 +19,8 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import send_mail
+from config import *
+from tweet_classifier import *
     
 @transaction.atomic()
 def register_user(request):
@@ -196,4 +198,18 @@ def logout(request):
 def home(request):
     args={}
     args.update(csrf(request))
-    return render_to_response('home.html',context_instance=RequestContext(request))
+    if request.method ==  'POST':
+        form = NewsListForm(request.POST)
+        args['form'] = form
+        if form.is_valid():
+            news_channel = form.cleaned_data.get('news_channel')
+            try:
+                classified_tweets = classify_tweets(NewsList(int(news_channel)).ui_return())
+            except:
+                err_message = (sys.exc_info()[1])
+                messages.add_message(request,messages.ERROR,err_message)
+            else:
+                args['classified_tweets'] = dict(classified_tweets)              
+    else:
+        args['form'] = NewsListForm()
+    return render_to_response('home.html',args,context_instance=RequestContext(request))

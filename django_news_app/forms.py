@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from config import NewsList
 
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder': 'E-mail address'}))
@@ -72,4 +73,5 @@ class PasswordResetConfirmForm(forms.Form):
             raise forms.ValidationError("Your passwords do not match")
         return password2
     
-   
+class NewsListForm(forms.Form):
+    news_channel = forms.ChoiceField(choices= [(choice.value, choice.name) for choice in NewsList])
