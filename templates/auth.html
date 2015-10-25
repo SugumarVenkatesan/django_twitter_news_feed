@@ -12,7 +12,7 @@ body{
 </head>
 <body>
 	{{ state }}
-	<form action="/login/" method="post">{% csrf_token %}
+	<form action="{% url 'login' %}" method="post">{% csrf_token %}
 		{% if next %}
 		<input type="hidden" name="next" value="{{ next }}" />
 		{% endif %}
@@ -22,7 +22,8 @@ body{
 		<input type="password" name="password" value="" /><br />
 
 		<input type="submit" value="Log In" />
-		<a href="{% url 'reset_password'%}">Forgot Password</a>
+		<a href="{% url 'reset_password' %}">Forgot Password ?</a>
+		<p>Have No Account&nbsp;&nbsp;<a href="{% url 'signup' %}">Create Here!</a></p>
 	</form>
 </body>
 </html>

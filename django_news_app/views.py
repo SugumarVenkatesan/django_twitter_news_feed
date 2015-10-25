@@ -1,7 +1,9 @@
 import sys
 
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login, forms
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import authenticate, login, forms, logout
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
@@ -14,7 +16,7 @@ from django.template import RequestContext
 from django.contrib import messages
 from datetime import datetime
 from django.utils import timezone
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import send_mail
     
@@ -45,14 +47,14 @@ def register_user(request):
 
 @transaction.atomic()
 def register_confirm(request, activation_key):
-
     #check if user is already logged in and if he is redirect him to some other url, e.g. home
     if request.user.is_authenticated():
-        HttpResponseRedirect('/home')
+        return HttpResponseRedirect(reverse('login'))
                
     
     # check if there is UserProfile which matches the activation key (if not then display 404)
     user_profile = get_object_or_404(UserProfile, activation_key=activation_key)
+        
     user = user_profile.user
     
     if 'reset' in request.GET and request.GET['reset'] == str(True) and user_profile.key_expired:
@@ -86,13 +88,17 @@ def register_confirm(request, activation_key):
             messages.add_message(request,messages.SUCCESS,'Your account has been successfully activated')
     else:
         messages.add_message(request,messages.INFO,'Your account has been already activated')
-        
+                
     return render_to_response('confirm.html',{'user_profile':user_profile},context_instance=RequestContext(request))    
 
 
 def login_user(request):
     state = "Please log in below..."
     username = password = ''
+    
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('home'))
+    
     if request.POST:
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -102,6 +108,7 @@ def login_user(request):
             if user.is_active:
                 login(request, user)               
                 state = "You're successfully logged in!"
+                return HttpResponseRedirect(reverse('home'))
             else:
                 state = "Your account is not active, please contact the site admin."
         else:
@@ -174,3 +181,19 @@ def reset_password_confirm(request,password_reset_token):
     except Http404 as e:
         args['link_expired'] = True
     return render_to_response('reset_password_confirm.html', args, context_instance=RequestContext(request))
+
+
+
+def logout(request):
+    if request.user.is_authenticated():
+        if hasattr(request, 'user'):
+            request.user = AnonymousUser()
+        logout(request)
+    request.session.flush()
+    return HttpResponseRedirect(reverse('login'))
+
+@login_required(login_url=reverse_lazy('login'))
+def home(request):
+    args={}
+    args.update(csrf(request))
+    return render_to_response('home.html',context_instance=RequestContext(request))

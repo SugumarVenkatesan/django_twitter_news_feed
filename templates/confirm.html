@@ -4,5 +4,5 @@
 {% endfor %}
 {% endif %}
 {% if user_profile.user.is_active %}
-<p>please click <a href='/login/'>here</a> to login</p>
+<p>please click <a href="{% url 'login' %}">here</a> to login</p>
 {% endif %}

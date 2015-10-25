@@ -5,7 +5,7 @@
     {% endfor %}
 </ul>
 {% endif %}
-<form class="form-signup" action="{% url "register_user"%}" method="post">{% csrf_token %}
+<form class="form-signup" action="{% url "signup"%}" method="post">{% csrf_token %}
     <h2>Create your account</h2>
     <div class="fieldWrapper">
         {{form.first_name.errors}}
@@ -45,3 +45,4 @@
     <br></br>
     <input type="submit" name="submit" class="btn btn-primary" value="Create account">
 </form>
+<p>Have Account&nbsp;&nbsp;<a href="{% url 'login' %}">login Here!</a></p>

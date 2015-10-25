@@ -21,7 +21,7 @@ post_key_expired = Signal(providing_args=['key_expired'])
 @receiver(post_save, sender=User)
 def save_userprofile(sender, created, **kwargs):
         obj = kwargs['instance']
-        key_expires = timezone.now() + timedelta(days=2)    
+        key_expires = timezone.now() + timedelta(days=settings.USER_ACTIVATION_MAIL_EXPIRY_PERIOD)    
         if created and not obj.is_superuser:
             activation_key = generate_activation_key(obj.email)
             new_profile = UserProfile(user=obj, activation_key=activation_key, 
@@ -46,7 +46,7 @@ def handle_key_expired(sender, **kwargs):
     obj = sender
     if key_expired:
         obj.activation_key = generate_activation_key(obj.user.email)
-        obj.key_expires = timezone.now() + timedelta(days=2)
+        obj.key_expires = timezone.now() + timedelta(days=settings.USER_ACTIVATION_MAIL_EXPIRY_PERIOD)
         obj.save()
         email_subject = 'Account reconfirmation'
         email_body = "Hey %s, as per your request, the activation link was again sent to you. To activate your account, click this link within 48hours http://127.0.0.1:8000/confirm/%s" % (obj.user.username, obj.activation_key)

@@ -53,7 +53,7 @@ ROOT_URLCONF = 'django_twitter_feed.urls'
 
 WSGI_APPLICATION = 'django_twitter_feed.wsgi.application'
 
-
+USER_ACTIVATION_MAIL_EXPIRY_PERIOD = 2 #give  it in days
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
