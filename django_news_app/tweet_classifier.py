@@ -8,7 +8,7 @@ TWITTER_CONSUMER_KEY = 'CT1nt0YBBxpgC9J0xOO1vEN9S'
 TWITTER_CONSUMER_SECRET = 'k9ComIjtRT8OLuNFVppB2JkZn75IZCEKFi2saoawByZAGKRt8A'
 TWITTER_ACCESS_TOKEN_KEY = '233444507-C3Rz8Vtu3TqxicRZ1UL6MiLmlQFsYZ4FaVrlwMZc'
 TWITTER_ACCESS_TOKEN_SECRET = 'nV0fcfGXeTOpSAGkyulGiGrUZlpl9qla4uzKF0mdkDufQ'
-
+MAXIMUM_TWEETS_PER_NEWS_CHANNEL = 10
 
 # You can [signup with MonkeyLearn](http://www.monkeylearn.com/) and get your [API token](https://app.monkeylearn.com/accounts/user/settings/).
 
@@ -93,7 +93,6 @@ def classify_batch(text_list, classifier_id):
         try:
             results.extend(response.json()['result'])
         except:
-            print response.text
             raise
 
     return results
@@ -146,12 +145,98 @@ def category_histogram(texts, short_texts):
         
     return histogram, samples
 
+def extract_keywords(text_list, max_keywords):
+    results = []
+    step = 250
+    for start in xrange(0, len(text_list), step):
+        end = start + step
+
+        data = {'text_list': text_list[start:end],
+                'max_keywords': max_keywords}
+
+        response = requests.post(
+            MONKEYLEARN_EXTRACTOR_BASE_URL + MONKEYLEARN_EXTRACTOR_ID + '/extract_batch_text/',
+            data=json.dumps(data),
+            headers={
+                'Authorization': 'Token {}'.format(MONKEYLEARN_TOKEN),
+                'Content-Type': 'application/json'
+        })
+
+        try:
+            results.extend(response.json()['result'])
+        except:
+            raise
+
+    return results
+
+
+import multiprocessing.dummy as multiprocessing
+
+BING_KEY = 'bPRNV6+GMAnNpshaktQdC2f9c/1AfaLiLukEA2jUVYU'
+EXPAND_TWEETS = True
+
+def _bing_search(query):
+    MAX_EXPANSIONS = 5
+    
+    params = {
+        'Query': u"'{}'".format(query),
+        '$format': 'json',
+    }
+    
+    response = requests.get(
+        'https://api.datamarket.azure.com/Bing/Search/v1/Web',
+        params=params,
+        auth=(BING_KEY, BING_KEY)
+    )
+    
+    try:    
+        response = response.json()
+    except ValueError as e:
+        texts = []
+        return
+    else:
+        texts = []
+        for result in response['d']['results'][:MAX_EXPANSIONS]:
+            texts.append(result['Title'])
+            texts.append(result['Description'])
+
+    return u" ".join(texts)
+
+
+def _expand_text(text):
+    result = text + u"\n" + _bing_search(text)
+    return result
+
+
+def expand_texts(texts):
+    # First extract hashtags and keywords from the text to form the queries
+    queries = []
+    keyword_list = extract_keywords(texts, 10)
+    for text, keywords in zip(texts, keyword_list):
+        query = ' '.join([item['keyword'] for item in keywords])
+        query = query.lower()
+        tags = re.findall(r"#(\w+)", text)
+        for tag in tags:
+            tag = tag.lower()
+            if tag not in query:
+                query = tag + ' ' + query
+        queries.append(query)
+        
+    pool = multiprocessing.Pool(2)
+    return pool.map(_expand_text, queries)
+
+
 def classify_tweets(newsaccount):
     # Authenticate to Twitter API
     auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
     auth.set_access_token(TWITTER_ACCESS_TOKEN_KEY, TWITTER_ACCESS_TOKEN_SECRET)
     api = tweepy.API(auth)
-    tweets = get_tweets(api,newsaccount,100)
+    tweets = get_tweets(api,newsaccount,MAXIMUM_TWEETS_PER_NEWS_CHANNEL)
     tweets_english = filter_language(tweets)
-    tweets_histogram, tweets_categorized = category_histogram(tweets, tweets_english)
+    if EXPAND_TWEETS:
+        expanded_tweets = expand_texts(tweets_english)
+    else:
+        expanded_tweets = tweets_english
+    tweets_histogram, tweets_categorized = category_histogram(tweets, expanded_tweets)
     return tweets_categorized
+
