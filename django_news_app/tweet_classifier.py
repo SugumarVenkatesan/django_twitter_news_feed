@@ -8,7 +8,7 @@ TWITTER_CONSUMER_KEY = ''
 TWITTER_CONSUMER_SECRET = ''
 TWITTER_ACCESS_TOKEN_KEY = ''
 TWITTER_ACCESS_TOKEN_SECRET = ''
-MAXIMUM_TWEETS_PER_NEWS_CHANNEL = 200
+MAXIMUM_TWEETS_PER_NEWS_CHANNEL = 50
 
 # You can [signup with MonkeyLearn](http://www.monkeylearn.com/) and get your [API token](https://app.monkeylearn.com/accounts/user/settings/).
 
