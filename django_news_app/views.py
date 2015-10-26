@@ -21,7 +21,7 @@ from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import send_mail
 from config import *
 from tweet_classifier import *
-    
+from collections import OrderedDict   
 @transaction.atomic()
 def register_user(request):
     args = {}
@@ -198,19 +198,23 @@ def logout(request):
 def home(request):
     args={}
     args.update(csrf(request))
+    args['categories'] = list()
     if request.method ==  'POST':
         form = NewsListForm(request.POST)
         args['form'] = form
         if form.is_valid():
             news_channel = form.cleaned_data.get('news_channel')
             try:
-                classified_tweets = classify_tweets(NewsList(int(news_channel)).ui_return())
+                classified_tweets,tweets_category_counter = classify_tweets(NewsList(int(news_channel)).ui_return())
             except:
                 err_message = (sys.exc_info()[1])
                 messages.add_message(request,messages.ERROR,err_message)
-            else:
+            else:   
                 messages.add_message(request,messages.SUCCESS,'Tweets Successfully Classified')
-                args['classified_tweets'] = dict(classified_tweets)              
+                ordered_tweets = sorted(classified_tweets.items(),key=lambda category:category[0] in request.POST.getlist('category_selected'), reverse=True)
+                args['classified_tweets'] = OrderedDict(ordered_tweets)
+                args['categories'] = tweets_category_counter.most_common()        
+                args['selected_category'] = request.POST.getlist('category_selected')
     else:
         args['form'] = NewsListForm()
     return render_to_response('home.html',args,context_instance=RequestContext(request))

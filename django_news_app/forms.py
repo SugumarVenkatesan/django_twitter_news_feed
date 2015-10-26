@@ -75,3 +75,5 @@ class PasswordResetConfirmForm(forms.Form):
     
 class NewsListForm(forms.Form):
     news_channel = forms.ChoiceField(choices= [(choice.value, choice.name) for choice in NewsList])
+    category = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,required=False)
+    

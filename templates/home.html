@@ -1,22 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
+{% load greaterthan %}
 <style>
-table{
+.login-centered-main {
+	margin-top:0!important;
+	margin-right: auto!important;
+	margin-bottom: 0!important;
+	margin-left: auto!important;
+	height: 100%;
+	min-height: 100%;
+ 	min-height: 100vh;
+	display: flex;
+	display: -ms-flexbox;
+	display: -webkit-flex; 
+  	 -webkit-box-align: center;
+    -moz-box-align: center;
+    -webkit-align-items: center; 
+    -ms-flex-align: center;
+    align-items: center;
+  	justify-content: center;
+  	flex-align: center;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+    vertical-align: middle;
+}
+.modal-bg {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+	overflow-x:hidden;
+	overflow-y:hidden;
+}
+.loader-img{
+	width:auto;
+	height:auto;
+}
+.square-box{
+	float:left;
+	padding:25px;
+	margin:0px;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-align:center;
+	border-radius: 5px 5px 5px 5px;
+	-webkit-border-radius: 5px 5px 5px 5px;
+	-moz-border-radius: 5px 5px 5px 5px;
+}
+.square-box img{
+	margin:0px 0px 10px 0px;
+	padding:0px;
+}
+.square-box p{
+	width:100%;
+	padding:0px;
+	margin:0px;
+	text-align:center;
+	font-size:10px !important;
+	font-weight:bold;
+	letter-spacing:0.5px;
+}
+.tweets_table
+{
 text-align:center;
 width:1097px;
 height:3px;
 }
-th , td { 
+.tweets_table th , td { 
    border: 1px solid #3a5795; 
    border-collapse: collapse; 
    padding: 5px; 
    
 } 
-table tr:nth-child(odd) { 
+.tweets_table tr:nth-child(odd) { 
    background-color: #f2f2f2; 
 } 
-table tr:nth-child(even) { 
+.tweets_table tr:nth-child(even) { 
    background-color: #ffffff; 
 }
 .test_login_div
@@ -30,12 +98,20 @@ left: 0;
 margin: auto;
 position: absolute;
 right: 0;
-top: 172px;
+top: 200px;
 width: 1251px;
 overflow:auto;
 }
-
 </style>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+<script type="text/javascript">
+function submit_form()
+{
+ $(".modal-bg").show();
+ $(".tweets_table tbody").hide();
+ $(".form_signup").submit();
+}
+</script>
 </head>
 <body>
 {% if messages %}
@@ -48,12 +124,27 @@ overflow:auto;
 <a style="float:right;" href="{% url "logout" %}">Logout</a>
 <form class="form-signup" action="{% url "home"%}" method="post">{% csrf_token %}
     <h2>Tweets Classification</h2>
-    {{ form.as_table }}
-    <input type="submit" name="submit" class="btn btn-primary" value="Get Tweets">
+    <tr>
+    <th>News Channel</th>
+    <td>{{ form.news_channel }}</td>
+    <th>Category</th>
+    <td>
+    <select id="category_selected" name="category_selected" style="width: 200px;" multiple>
+     {% with form|gt:form.category|gt:categories as range %}
+     {% for each_choice in range%}                
+      <option value="{{each_choice.value}}" {% if each_choice.value in selected_category %} selected = "selected" {% endif %}>
+   		{{each_choice.name}}
+      </option>
+    {% endfor %}        
+    {% endwith %}
+    </select>
+    </td>
+    <input type="submit" name="submit" class="btn btn-primary" onclick="submit_form()"value="Get Tweets">
+    </tr>
 </form>
 <div class="test_login_div">
 <br>
-<table align="center">
+<table class="tweets_table" align="center">
 <thead>
 <tr>
 <th>Category</th>
@@ -71,5 +162,14 @@ overflow:auto;
 </tbody>
 </table>
 </div>
+<div class="modal-bg" style="display:none;">
+    <div class="login-centered-main">
+      <div class="loader-img">
+        <div class="square-box"> <img src="{{STATIC_URL}}images/loadingimage.gif" alt="" width="50" height="50"/>
+          <p>LOADING.....PLEASE WAIT</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

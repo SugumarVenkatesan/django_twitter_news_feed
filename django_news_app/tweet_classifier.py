@@ -8,7 +8,7 @@ TWITTER_CONSUMER_KEY = 'CT1nt0YBBxpgC9J0xOO1vEN9S'
 TWITTER_CONSUMER_SECRET = 'k9ComIjtRT8OLuNFVppB2JkZn75IZCEKFi2saoawByZAGKRt8A'
 TWITTER_ACCESS_TOKEN_KEY = '233444507-C3Rz8Vtu3TqxicRZ1UL6MiLmlQFsYZ4FaVrlwMZc'
 TWITTER_ACCESS_TOKEN_SECRET = 'nV0fcfGXeTOpSAGkyulGiGrUZlpl9qla4uzKF0mdkDufQ'
-MAXIMUM_TWEETS_PER_NEWS_CHANNEL = 10
+MAXIMUM_TWEETS_PER_NEWS_CHANNEL = 200
 
 # You can [signup with MonkeyLearn](http://www.monkeylearn.com/) and get your [API token](https://app.monkeylearn.com/accounts/user/settings/).
 
@@ -173,7 +173,7 @@ def extract_keywords(text_list, max_keywords):
 import multiprocessing.dummy as multiprocessing
 
 BING_KEY = 'bPRNV6+GMAnNpshaktQdC2f9c/1AfaLiLukEA2jUVYU'
-EXPAND_TWEETS = True
+EXPAND_TWEETS = False
 
 def _bing_search(query):
     MAX_EXPANSIONS = 5
@@ -238,5 +238,5 @@ def classify_tweets(newsaccount):
     else:
         expanded_tweets = tweets_english
     tweets_histogram, tweets_categorized = category_histogram(tweets, expanded_tweets)
-    return tweets_categorized
+    return tweets_categorized, tweets_histogram
 
