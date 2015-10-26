@@ -30,7 +30,7 @@ left: 0;
 margin: auto;
 position: absolute;
 right: 0;
-top: 108px;
+top: 172px;
 width: 1251px;
 overflow:auto;
 }
@@ -38,9 +38,16 @@ overflow:auto;
 </style>
 </head>
 <body>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 <a style="float:right;" href="{% url "logout" %}">Logout</a>
 <form class="form-signup" action="{% url "home"%}" method="post">{% csrf_token %}
-    <h2>Create your account</h2>
+    <h2>Tweets Classification</h2>
     {{ form.as_table }}
     <input type="submit" name="submit" class="btn btn-primary" value="Get Tweets">
 </form>

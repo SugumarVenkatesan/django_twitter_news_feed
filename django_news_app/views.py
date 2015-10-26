@@ -209,6 +209,7 @@ def home(request):
                 err_message = (sys.exc_info()[1])
                 messages.add_message(request,messages.ERROR,err_message)
             else:
+                messages.add_message(request,messages.SUCCESS,'Tweets Successfully Classified')
                 args['classified_tweets'] = dict(classified_tweets)              
     else:
         args['form'] = NewsListForm()
