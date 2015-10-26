@@ -6,7 +6,7 @@ register = template.Library()
 
 
 @register.filter
-def gt(form,field):
+def get_field_choice(form,field):
     Choices  = namedtuple('Choice', 'name value')
     if isinstance(form,NewsListForm):
         form = NewsListForm()
