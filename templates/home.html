@@ -130,7 +130,7 @@ function submit_form()
     <th>Category</th>
     <td>
     <select id="category_selected" name="category_selected" style="width: 200px;" multiple>
-     {% with form|gt:form.category|gt:categories as range %}
+     {% with form|get_category:form.category|get_category:categories as range %}
      {% for each_choice in range%}                
       <option value="{{each_choice.value}}" {% if each_choice.value in selected_category %} selected = "selected" {% endif %}>
    		{{each_choice.name}}
